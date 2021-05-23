@@ -1,8 +1,11 @@
 {
   "private": true,
-  "main": "main.js",
+  "main": "main.mjs",
   "scripts": {
     "lint": "xo --fix"
+  },
+  "dependencies": {
+    "@turf/distance": "^6.3.0"
   },
   "devDependencies": {
     "@yoursunny/xo-config": "^0.38.0"
