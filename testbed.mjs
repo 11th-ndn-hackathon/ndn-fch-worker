@@ -23,10 +23,6 @@ const lastFetch = 0;
  */
 async function fetchTestbedNodes(signal) {
   const req = new Request("https://ndndemo.arl.wustl.edu/testbed-nodes.json");
-  req.cf = {
-    cacheEverything: true,
-    cacheTtl: 300,
-  };
 
   const res = await abortableFetch(req, signal);
   if (!res.ok) {
@@ -68,12 +64,12 @@ export async function listRouters() {
   if (lastFetch + 3600000 < Date.now()) {
     const abort = new FetchAbortController();
     const timer = setTimeout(() => abort.abort(new Error("timeout")), 2000);
-    // try {
-    routers = await fetchTestbedNodes(abort.signal);
-    clearTimeout(timer);
-    // } catch (err) {
-    //   console.error("fetchTestbedNodes", err);
-    // }
+    try {
+      routers = await fetchTestbedNodes(abort.signal);
+      clearTimeout(timer);
+    } catch (err) {
+      console.error(`fetchTestbedNodes error ${err}`);
+    }
   }
 
   return routers;

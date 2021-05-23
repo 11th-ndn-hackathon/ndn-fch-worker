@@ -1,7 +1,12 @@
-import distance from "@turf/distance";
+import turfDistance from "@turf/distance";
 
 import { abortableFetch, FetchAbortController } from "./fetch.mjs";
 import { listRouters } from "./testbed.mjs";
+
+/**
+ * @type {(a: [number,number], b: [number,number]) => number}
+ */
+const distance = typeof turfDistance === "function" ? turfDistance : turfDistance.default;
 
 addEventListener("fetch", (event) => {
   event.respondWith(handleRequest(event.request));
@@ -24,7 +29,7 @@ async function handleRequest(req) {
     clearTimeout(timer);
     source = "api";
   } catch (err) {
-    console.error("apiRequest", err);
+    console.error(`apiRequest error ${err}`);
   }
 
   if (body === "") {
