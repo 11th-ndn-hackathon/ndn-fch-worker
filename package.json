@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "lint": "xo --fix"
+  },
+  "devDependencies": {
+    "@yoursunny/xo-config": "^0.38.0"
+  }
+}
