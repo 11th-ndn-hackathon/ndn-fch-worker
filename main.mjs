@@ -21,24 +21,26 @@ async function handleRequest(req) {
   const q = new Query(req);
 
   let source = "";
+  let contentType = "text/plain";
   let body = "";
   const abort = new FetchAbortController();
   const timer = setTimeout(() => abort.abort(new Error("timeout")), 1000);
   try {
-    body = await apiRequest(q, abort.signal);
+    [contentType, body] = await apiRequest(q, req.headers.get("accept"), abort.signal);
     clearTimeout(timer);
     source = "api";
   } catch (err) {
     console.error(`apiRequest error ${err}`);
   }
 
-  if (body === "") {
-    body = await fallbackLogic(q);
+  if (!body) {
+    [contentType, body] = await fallbackLogic(q);
     source = "fallback";
   }
 
   const res = new Response(body);
   res.headers.set("Access-Control-Allow-Origin", "*");
+  res.headers.set("Content-Type", contentType);
   res.headers.set("X-FCH-source", source);
   res.headers.set("X-FCH-query", `${q.toSearchParams()}`);
   return res;
@@ -55,7 +57,7 @@ class Query {
     if (!Number.isFinite(this.k) || this.k < 1) {
       this.k = 1;
     }
-    this.cap = url.searchParams.get("cap") || "udp";
+    this.cap = url.searchParams.getAll("cap") || ["udp"];
     this.ipv4 = Query.parseBooleanParam(url, "ipv4", true);
     this.ipv6 = Query.parseBooleanParam(url, "ipv6", ip.includes(":"));
     this.lon = Query.parseFloatParam(url, "lon", -180, 180, req.cf.longitude);
@@ -103,7 +105,9 @@ class Query {
   toSearchParams() {
     const s = new URLSearchParams();
     s.set("k", `${this.k}`);
-    s.set("cap", this.cap);
+    for (const c of this.cap) {
+      s.append("cap", c);
+    }
     s.set("ipv4", this.ipv4 ? "1" : "0");
     s.set("ipv6", this.ipv6 ? "1" : "0");
     s.set("lon", `${this.lon}`);
@@ -114,33 +118,39 @@ class Query {
 
 /**
  * @param {Query} q
+ * @param {string} accept
  * @param {AbortSignal} signal
- * @returns {Promise<string>}
+ * @returns {Promise<[string, string]>}
  */
-async function apiRequest(q, signal) {
-  const req = new URL(API);
+async function apiRequest(q, accept, signal) {
+  const uri = new URL(API);
   for (const [k, v] of q.toSearchParams()) {
-    req.searchParams.append(k, v);
+    uri.searchParams.append(k, v);
   }
+
+  const req = new Request(uri, {
+    headers: {
+      Accept: accept,
+    },
+  });
 
   const res = await abortableFetch(req, signal);
   if (!res.ok) {
     throw new Error(`HTTP ${res.status}`);
   }
-
-  return res.text();
+  return [res.headers.get("Content-Type"), await res.text()];
 }
 
 /**
  * @param {Query} q
- * @returns {Promise<string>}
+ * @returns {Promise<[string, string]>}
  */
 async function fallbackLogic(q) {
   const pos = [q.lon, q.lat];
   const routers = await listRouters();
-  const avail = routers.filter((router) => router[q.cap]);
+  const avail = routers.filter((router) => q.cap.some((c) => !!router[c]));
   avail.sort((a, b) => {
     return distance(pos, a.position) - distance(pos, b.position);
   });
-  return avail.slice(0, q.k).map((router) => router.host).join(",");
+  return ["text/plain", avail.slice(0, q.k).map((router) => router.host).join(",")];
 }

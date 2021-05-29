@@ -8,6 +8,6 @@
     "@turf/distance": "^6.3.0"
   },
   "devDependencies": {
-    "@yoursunny/xo-config": "^0.38.0"
+    "@yoursunny/xo-config": "^0.40.1"
   }
 }

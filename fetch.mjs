@@ -23,7 +23,7 @@ export class FetchAbortSignal {
 }
 
 /**
- * @param {Request} req
+ * @param {Request|URL} req
  * @param {AbortSignal} signal
  * @returns {Promise<Response>}
  */
