@@ -18,6 +18,21 @@ const API = "https://fch-dal.ndn.today/api/";
  * @param {Request} req
  */
 async function handleRequest(req) {
+  const uri = new URL(req.url);
+  switch (uri.pathname) {
+    case "/robots.txt":
+      return new Response("User-Agent: *\nDisallow: /\n");
+    case "/":
+      return handleQuery(req);
+    default:
+      return new Response("", { status: 404 });
+  }
+}
+
+/**
+ * @param {Request} req
+ */
+async function handleQuery(req) {
   const q = new Query(req);
 
   let source = "";
@@ -53,11 +68,11 @@ class Query {
   constructor(req) {
     const url = new URL(req.url);
     const ip = req.headers.get("CF-Connecting-IP") || "";
-    this.k = Number.parseInt(url.searchParams.get("k"), 10);
-    if (!Number.isFinite(this.k) || this.k < 1) {
-      this.k = 1;
-    }
-    this.cap = url.searchParams.getAll("cap") || ["udp"];
+    this.count = (url.searchParams.getAll("k") || ["1"]).map((k) => {
+      const n = Number.parseInt(k, 10);
+      return Number.isFinite(n) ? Math.max(1, n) : 1;
+    });
+    this.transport = url.searchParams.getAll("cap") || ["udp"];
     this.ipv4 = Query.parseBooleanParam(url, "ipv4", true);
     this.ipv6 = Query.parseBooleanParam(url, "ipv6", ip.includes(":"));
     this.lon = Query.parseFloatParam(url, "lon", -180, 180, req.cf.longitude);
@@ -104,8 +119,10 @@ class Query {
    */
   toSearchParams() {
     const s = new URLSearchParams();
-    s.set("k", `${this.k}`);
-    for (const c of this.cap) {
+    for (const k of this.count) {
+      s.append("k", `${k}`);
+    }
+    for (const c of this.transport) {
       s.append("cap", c);
     }
     s.set("ipv4", this.ipv4 ? "1" : "0");
@@ -148,9 +165,9 @@ async function apiRequest(q, accept, signal) {
 async function fallbackLogic(q) {
   const pos = [q.lon, q.lat];
   const routers = await listRouters();
-  const avail = routers.filter((router) => q.cap.some((c) => !!router[c]));
+  const avail = routers.filter((router) => q.transport.some((c) => !!router[c]));
   avail.sort((a, b) => {
     return distance(pos, a.position) - distance(pos, b.position);
   });
-  return ["text/plain", avail.slice(0, q.k).map((router) => router.host).join(",")];
+  return ["text/plain", avail.slice(0, q.count[0]).map((router) => router.host).join(",")];
 }
