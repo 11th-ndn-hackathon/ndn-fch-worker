@@ -9,20 +9,23 @@
  */
 
 /**
+ * Router list.
  * @type {Router[]}
  */
 let routers = [];
 
-const lastFetch = 0;
+/**
+ * Last successful fetch timestamp.
+ */
+let lastFetch = 0;
 
 /**
+ * Retrieve global NDN testbed router list.
  * @param {AbortSignal} signal
  * @returns {Promise<Router[]>}
  */
 async function fetchTestbedNodes(signal) {
-  const req = new Request("https://ndndemo.arl.wustl.edu/testbed-nodes.json");
-
-  const res = await fetch(req, { signal });
+  const res = await fetch("https://ndndemo.arl.wustl.edu/testbed-nodes.json", { signal });
   if (!res.ok) {
     throw new Error(`HTTP ${res.status}`);
   }
@@ -58,6 +61,10 @@ async function fetchTestbedNodes(signal) {
   return routers;
 }
 
+/**
+ * Obtain global NDN testbed router list.
+ * @returns {Promise<Router[]>}
+ */
 export async function listRouters() {
   if (lastFetch + 3600000 < Date.now()) {
     const abort = new AbortController();
@@ -65,10 +72,10 @@ export async function listRouters() {
     try {
       routers = await fetchTestbedNodes(abort.signal);
       clearTimeout(timer);
+      lastFetch = Date.now();
     } catch (err) {
       console.error(`fetchTestbedNodes error ${err}`);
     }
   }
-
   return routers;
 }

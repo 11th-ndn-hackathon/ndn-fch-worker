@@ -3,6 +3,7 @@ import turfDistance from "@turf/distance";
 import { listRouters } from "./testbed.mjs";
 
 /**
+ * Compute distance between two [lon,lat] points in kilometers.
  * @type {(a: [number,number], b: [number,number]) => number}
  */
 const distance = typeof turfDistance === "function" ? turfDistance : turfDistance.default;
@@ -11,9 +12,10 @@ addEventListener("fetch", (event) => {
   event.respondWith(handleRequest(event.request));
 });
 
-const API = "https://fch-dal.ndn.today/api/";
+const API = "https://fch-muc.ndn.today/api/";
 
 /**
+ * Route HTTP request.
  * @param {Request} req
  */
 async function handleRequest(req) {
@@ -21,6 +23,8 @@ async function handleRequest(req) {
   switch (uri.pathname) {
     case "/robots.txt":
       return new Response("User-Agent: *\nDisallow: /\n");
+    case "/routers.json":
+      return fetch(`${API}routers.json`);
     case "/":
       return handleQuery(req);
     default:
@@ -29,6 +33,7 @@ async function handleRequest(req) {
 }
 
 /**
+ * Handle FCH query.
  * @param {Request} req
  */
 async function handleQuery(req) {
@@ -60,8 +65,12 @@ async function handleQuery(req) {
   return res;
 }
 
+/**
+ * FCH query.
+ */
 class Query {
   /**
+   * Parse from HTTP request.
    * @param {Request} req
    */
   constructor(req) {
@@ -114,6 +123,7 @@ class Query {
   }
 
   /**
+   * Convert to query string for sending to API server.
    * @returns {URLSearchParams}
    */
   toSearchParams() {
@@ -133,6 +143,7 @@ class Query {
 }
 
 /**
+ * Make a request to API server.
  * @param {Query} q
  * @param {string} accept
  * @param {AbortSignal} signal
@@ -144,13 +155,12 @@ async function apiRequest(q, accept, signal) {
     uri.searchParams.append(k, v);
   }
 
-  const req = new Request(uri, {
+  const res = await fetch(uri, {
     headers: {
       Accept: accept,
     },
+    signal,
   });
-
-  const res = await fetch(req, { signal });
   if (!res.ok) {
     throw new Error(`HTTP ${res.status}`);
   }
@@ -158,6 +168,7 @@ async function apiRequest(q, accept, signal) {
 }
 
 /**
+ * Perform simple computation locally.
  * @param {Query} q
  * @returns {Promise<[string, string]>}
  */
