@@ -1,5 +1,3 @@
-import { abortableFetch, FetchAbortController } from "./fetch.mjs";
-
 /**
  * @typedef {{
  *   id: string;
@@ -24,7 +22,7 @@ const lastFetch = 0;
 async function fetchTestbedNodes(signal) {
   const req = new Request("https://ndndemo.arl.wustl.edu/testbed-nodes.json");
 
-  const res = await abortableFetch(req, signal);
+  const res = await fetch(req, { signal });
   if (!res.ok) {
     throw new Error(`HTTP ${res.status}`);
   }
@@ -62,7 +60,7 @@ async function fetchTestbedNodes(signal) {
 
 export async function listRouters() {
   if (lastFetch + 3600000 < Date.now()) {
-    const abort = new FetchAbortController();
+    const abort = new AbortController();
     const timer = setTimeout(() => abort.abort(new Error("timeout")), 2000);
     try {
       routers = await fetchTestbedNodes(abort.signal);

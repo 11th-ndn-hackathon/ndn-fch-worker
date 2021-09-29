@@ -5,9 +5,9 @@
     "lint": "xo --fix"
   },
   "dependencies": {
-    "@turf/distance": "^6.3.0"
+    "@turf/distance": "^6.5.0"
   },
   "devDependencies": {
-    "@yoursunny/xo-config": "^0.40.1"
+    "@yoursunny/xo-config": "^0.44.0"
   }
 }

@@ -1,8 +1,8 @@
-name = 'ndn-fch'
-type = 'webpack'
-account_id = ''
+name = "ndn-fch"
+type = "webpack"
 route = ''
 zone_id = ''
 usage_model = ''
+compatibility_flags = []
 workers_dev = true
-target_type = 'webpack'
+compatibility_date = "2021-09-28"
