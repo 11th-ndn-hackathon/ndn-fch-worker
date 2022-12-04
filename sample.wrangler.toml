@@ -1,8 +1,6 @@
 name = "ndn-fch"
-type = "webpack"
-route = ''
-zone_id = ''
-usage_model = ''
-compatibility_flags = []
+main = "src/main.mjs"
+compatibility_date = "2022-12-02"
+
 workers_dev = true
-compatibility_date = "2021-09-28"
+route = { pattern = "https://fch.example.net/*", zone_name = "example.net" }

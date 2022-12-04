@@ -12,7 +12,7 @@ addEventListener("fetch", (event) => {
   event.respondWith(handleRequest(event.request));
 });
 
-const API = "https://fch-muc.ndn.today/api/";
+const API = "https://fch-a.ndn.today";
 
 /**
  * Route HTTP request.
@@ -155,7 +155,7 @@ async function apiRequest(q, accept, signal) {
     uri.searchParams.append(k, v);
   }
 
-  const res = await fetch(uri, {
+  const res = await fetch(uri.toString(), {
     headers: {
       Accept: accept,
     },
