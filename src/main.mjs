@@ -24,12 +24,25 @@ async function handleRequest(req) {
     case "/robots.txt":
       return new Response("User-Agent: *\nDisallow: /\n");
     case "/routers.json":
-      return fetch(`${API}routers.json`);
+      return handleRouters();
     case "/":
       return handleQuery(req);
     default:
       return new Response("", { status: 404 });
   }
+}
+
+/** Handle router.json request. */
+async function handleRouters() {
+  const fetched = await fetch(`${API}/routers.json`);
+  if (!fetched.ok) {
+    return fetched;
+  }
+  const body = await fetched.json();
+  const res = new Response(JSON.stringify(body));
+  res.headers.set("Access-Control-Allow-Origin", "*");
+  res.headers.set("Content-Type", "application/json");
+  return res;
 }
 
 /**
@@ -75,7 +88,7 @@ class Query {
    */
   constructor(req) {
     const { searchParams: s } = new URL(req.url);
-    const ip = req.headers.get("CF-Connecting-IP") || "";
+    const ip = req.headers.get("CF-Connecting-IP") ?? "";
     this.count = (s.has("k") ? s.getAll("k") : ["1"]).map((k) => {
       const n = Number.parseInt(k, 10);
       return Number.isFinite(n) ? Math.max(1, n) : 1;
