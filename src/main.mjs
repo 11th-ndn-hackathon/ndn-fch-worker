@@ -98,6 +98,7 @@ class Query {
     this.ipv6 = Query.parseBooleanParam(s, "ipv6", ip.includes(":"));
     this.lon = Query.parseFloatParam(s, "lon", -180, 180, req.cf.longitude);
     this.lat = Query.parseFloatParam(s, "lat", -90, 90, req.cf.latitude);
+    this.network = s.get("network");
   }
 
   /**
@@ -151,6 +152,9 @@ class Query {
     s.set("ipv6", this.ipv6 ? "1" : "0");
     s.set("lon", `${this.lon}`);
     s.set("lat", `${this.lat}`);
+    if (this.network) {
+      s.set("network", this.network);
+    }
     return s;
   }
 }
