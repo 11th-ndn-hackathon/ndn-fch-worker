@@ -1,6 +1,6 @@
 name = "ndn-fch"
 main = "src/main.mjs"
-compatibility_date = "2023-01-02"
+compatibility_date = "2023-05-18"
 
 workers_dev = true
 route = { pattern = "https://fch.example.net/*", zone_name = "example.net" }

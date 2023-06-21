@@ -21,14 +21,18 @@ const API = "https://fch-a.ndn.today";
 async function handleRequest(req) {
   const uri = new URL(req.url);
   switch (uri.pathname) {
-    case "/robots.txt":
+    case "/robots.txt": {
       return new Response("User-Agent: *\nDisallow: /\n");
-    case "/routers.json":
+    }
+    case "/routers.json": {
       return handleRouters();
-    case "/":
+    }
+    case "/": {
       return handleQuery(req);
-    default:
+    }
+    default: {
       return new Response("", { status: 404 });
+    }
   }
 }
 
@@ -110,12 +114,15 @@ class Query {
    */
   static parseBooleanParam(search, key, dflt) {
     switch (search.get(key)) {
-      case "1":
+      case "1": {
         return true;
-      case "0":
+      }
+      case "0": {
         return false;
-      default:
+      }
+      default: {
         return dflt;
+      }
     }
   }
 

@@ -2,12 +2,14 @@
   "private": true,
   "main": "main.mjs",
   "scripts": {
-    "lint": "xo --fix"
+    "lint": "xo --fix",
+    "wrangler": "wrangler"
   },
   "dependencies": {
     "@turf/distance": "^6.5.0"
   },
   "devDependencies": {
-    "@yoursunny/xo-config": "^0.52.1"
+    "@yoursunny/xo-config": "^0.54.0",
+    "wrangler": "^3.1.1"
   }
 }
