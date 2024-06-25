@@ -1,12 +1,6 @@
-import turfDistance from "@turf/distance";
+import { distance } from "@turf/distance";
 
 import { listRouters } from "./testbed.mjs";
-
-/**
- * Compute distance between two [lon,lat] points in kilometers.
- * @type {(a: [number,number], b: [number,number]) => number}
- */
-const distance = typeof turfDistance === "function" ? turfDistance : turfDistance.default;
 
 addEventListener("fetch", (event) => {
   event.respondWith(handleRequest(event.request));
