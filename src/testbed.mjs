@@ -25,7 +25,7 @@ let lastFetch = 0;
  * @returns {Promise<Router[]>}
  */
 async function fetchTestbedNodes(signal) {
-  const res = await fetch("https://ndndemo.arl.wustl.edu/testbed-nodes.json", { signal });
+  const res = await fetch("https://testbed-status.named-data.net/testbed-nodes.json", { signal });
   if (!res.ok) {
     throw new Error(`HTTP ${res.status}`);
   }
